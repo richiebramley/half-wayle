@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import countries, { Country, findClosestCountry } from '../utils/geo';
+import React, { useState } from 'react';
+import countries, { Country } from '../utils/geo';
 import { getCountryFlag } from '../utils/flags';
 import Autocomplete from './Autocomplete';
 import Map from './Map';
@@ -72,7 +72,7 @@ const Round: React.FC<RoundProps> = ({ country1, country2, answer, attempts, onA
 
   return (
     <div style={{ textAlign: 'center' }}>
-      <h3>Which country's geographical center is at the halfway point between:</h3>
+      <h3>Which country's geographical center is closest to the halfway point between:</h3>
       {/* Country cards presentation */}
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 32, margin: '24px 0' }}>
         <div style={{ border: '1px solid #ccc', borderRadius: 12, padding: '16px 24px', minWidth: 120, textAlign: 'center', background: '#fff', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>

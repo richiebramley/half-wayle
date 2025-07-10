@@ -11,7 +11,6 @@ const MAP_WIDTH = 1920;
 const MAP_HEIGHT = 974.83;
 
 // The downloaded SVG is 1920x975, so we need to scale our overlay accordingly
-const SVG_WORLD_MAP_URL = process.env.PUBLIC_URL + '/world_map_political.svg';
 const SVG_WORLD_MAP_WIDTH = 1920;
 const SVG_WORLD_MAP_HEIGHT = 975;
 

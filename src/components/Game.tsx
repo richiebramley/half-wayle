@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import countries, { findClosestCountry, Country } from '../utils/geo';
-import { getCountryFlag } from '../utils/flags';
 import Round from './Round';
 import Map from './Map'; // Added Map import
 
