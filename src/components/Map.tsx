@@ -31,7 +31,7 @@ type MapProps = {
   country1: Country;
   country2: Country;
   answer: Country;
-  guesses: { name: string; distance: number; direction: string }[];
+  guesses: { name: string; distance: number; direction: string; correct: boolean }[];
 };
 
 const Map: React.FC<MapProps> = ({ country1, country2, answer, guesses }) => {
@@ -90,6 +90,9 @@ const Map: React.FC<MapProps> = ({ country1, country2, answer, guesses }) => {
   maxY = Math.min(MAP_HEIGHT, maxY + padY);
   const viewBox = `${minX} ${minY} ${maxX - minX} ${maxY - minY}`;
 
+  // Determine if the last guess was correct
+  const lastGuessCorrect = guesses.length === 0 ? true : guesses[guesses.length - 1].correct;
+
   return (
     <div style={{ marginTop: 20, textAlign: 'center' }}>
       <div style={{ marginBottom: 18, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 32 }}>
@@ -97,9 +100,9 @@ const Map: React.FC<MapProps> = ({ country1, country2, answer, guesses }) => {
           <div style={{ fontSize: 28 }}>{getCountryFlag(country1.name)}</div>
           <div style={{ fontWeight: 'bold', fontSize: 16, marginTop: 6 }}>{country1.name}</div>
         </div>
-        <div style={{ border: '2px solid #51cf66', borderRadius: 12, padding: '12px 20px', minWidth: 120, textAlign: 'center', background: '#f6fff8', boxShadow: '0 2px 8px rgba(81,207,102,0.08)' }}>
+        <div style={{ border: lastGuessCorrect ? '2px solid #51cf66' : '2px solid #d7263d', borderRadius: 12, padding: '12px 20px', minWidth: 120, textAlign: 'center', background: lastGuessCorrect ? '#f6fff8' : '#fff6f6', boxShadow: lastGuessCorrect ? '0 2px 8px rgba(81,207,102,0.08)' : '0 2px 8px rgba(215,38,61,0.08)' }}>
           <div style={{ fontSize: 28 }}>{getCountryFlag(answer.name)}</div>
-          <div style={{ fontWeight: 'bold', fontSize: 16, marginTop: 6 }}>{answer.name} <span style={{ color: '#51cf66', fontWeight: 500 }}>(Middle)</span></div>
+          <div style={{ fontWeight: 'bold', fontSize: 16, marginTop: 6, color: lastGuessCorrect ? undefined : '#d7263d' }}>{answer.name} <span style={{ color: lastGuessCorrect ? '#51cf66' : '#d7263d', fontWeight: 500 }}>(Middle)</span></div>
         </div>
         <div style={{ border: '1px solid #ccc', borderRadius: 12, padding: '12px 20px', minWidth: 120, textAlign: 'center', background: '#fff', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
           <div style={{ fontSize: 28 }}>{getCountryFlag(country2.name)}</div>
@@ -107,12 +110,12 @@ const Map: React.FC<MapProps> = ({ country1, country2, answer, guesses }) => {
         </div>
       </div>
       {guesses.length > 0 && (
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 16, marginBottom: 18 }}>
+        <div className="guess-cards-row" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 16, marginBottom: 18, flexWrap: 'wrap' }}>
           {guesses.map((g: any, i: number) => (
             <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', background: '#f8f9fa', borderRadius: 12, padding: '14px 24px', fontSize: 18, border: '1.5px solid #e0e0e0', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', minWidth: 160, fontWeight: 600 }}>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 16 }}>
-                <span style={{ fontWeight: 700, fontSize: 24 }}>{i + 1}.</span>
-                <span style={{ fontSize: 22 }}>{getCountryFlag(g.name)}</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
+                <span style={{ fontWeight: 700, fontSize: 20 }}>{i + 1}.</span>
+                <span style={{ fontSize: 16 }}>{getCountryFlag(g.name)}</span>
                 <span>{g.name}</span>
               </span>
               <span style={{ marginTop: 6, fontWeight: 400, fontSize: 15, color: '#444' }}>{!isNaN(g.distance) ? `${g.distance} km` : ''}</span>
@@ -124,16 +127,22 @@ const Map: React.FC<MapProps> = ({ country1, country2, answer, guesses }) => {
         <svg width="100%" height="auto" viewBox={viewBox} style={{ border: '1px solid #ccc', background: '#f0f8ff', display: 'block', width: '100%', height: 'auto' }}>
           {/* Render the world map from GeoJSON */}
           {geoData.features.map((feature: any, i: number) => {
-            // Highlight the answer country border in green
+            // Highlight the answer country border in green or red
             const isAnswer = feature.properties && feature.properties.name && feature.properties.name.toLowerCase() === answer.name.toLowerCase();
+            let answerStroke = '#51cf66';
+            let answerShadow = 'drop-shadow(0 0 6px #51cf6688)';
+            if (isAnswer && !lastGuessCorrect) {
+              answerStroke = '#d7263d';
+              answerShadow = 'drop-shadow(0 0 6px #d7263d88)';
+            }
             return (
               <path
                 key={i}
                 d={pathGenerator(feature) || ''}
                 fill="#e0e0e0"
-                stroke={isAnswer ? "#51cf66" : "#888"}
+                stroke={isAnswer ? answerStroke : "#888"}
                 strokeWidth={isAnswer ? 3 : 0.5}
-                style={isAnswer ? { filter: 'drop-shadow(0 0 6px #51cf6688)' } : {}}
+                style={isAnswer ? { filter: answerShadow } : {}}
               />
             );
           })}
