@@ -95,7 +95,6 @@ const Round: React.FC<RoundProps> = ({ country1, country2, answer, attempts, onA
         />
       </div>
       <div style={{ marginTop: 16, minHeight: 24 }}>{feedback}</div>
-      <div style={{ marginTop: 8 }}>Attempts: {attempts.length} / 5</div>
       {/* Show correct message if last attempt is correct */}
       {attempts.length > 0 && attempts[attempts.length - 1].correct && (
         <div style={{ fontWeight: 'bold', fontSize: 20, color: '#388e3c', marginBottom: 12 }}>

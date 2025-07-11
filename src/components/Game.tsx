@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import countries, { Country, findClosestCountry } from '../utils/geo';
+import { pathCrossesWater } from '../utils/geo';
+import { FeatureCollection, Geometry } from 'geojson';
 import Round from './Round';
 import Map from './Map'; // Added Map import
 
@@ -20,9 +22,9 @@ function haversine(lat1: number, lng1: number, lat2: number, lng2: number) {
 }
 
 const DIFFICULTY_OPTIONS = [
-  { label: 'Easy', min: 0, max: 5000 },
-  { label: 'Medium', min: 5001, max: 15000 },
-  { label: 'Hard', min: 15001, max: Infinity },
+  { label: 'Easy', min: 0, max: 5000, allowWaterCrossing: false },
+  { label: 'Medium', min: 5001, max: 15000, allowWaterCrossing: true },
+  { label: 'Hard', min: 15001, max: Infinity, allowWaterCrossing: true },
 ];
 
 function getRandomCountry(exclude: string[] = []): Country {
@@ -30,7 +32,7 @@ function getRandomCountry(exclude: string[] = []): Country {
   return filtered[Math.floor(Math.random() * filtered.length)];
 }
 
-function getRandomCountryPair(difficulty: { min: number; max: number }): [Country, Country] {
+function getRandomCountryPair(difficulty: { min: number; max: number; allowWaterCrossing: boolean }, geojson: FeatureCollection<Geometry>): [Country, Country] {
   let c1: Country, c2: Country, dist: number;
   let tries = 0;
   do {
@@ -39,16 +41,29 @@ function getRandomCountryPair(difficulty: { min: number; max: number }): [Countr
     dist = haversine(c1.lat, c1.lng, c2.lat, c2.lng);
     tries++;
     if (tries > 2000) break; // fallback to avoid infinite loop
-  } while (dist < difficulty.min || dist > difficulty.max);
+  } while (
+    dist < difficulty.min ||
+    dist > difficulty.max ||
+    (!difficulty.allowWaterCrossing && pathCrossesWater(c1, c2, geojson))
+  );
   return [c1, c2];
 }
 
+// Game component
 const Game: React.FC = () => {
+  const [geojson, setGeojson] = useState<FeatureCollection<Geometry> | null>(null);
   const [difficulty, setDifficulty] = useState<typeof DIFFICULTY_OPTIONS[number] | null>(null);
   const [difficultyLocked, setDifficultyLocked] = useState(false);
   const [countryPair, setCountryPair] = useState<[Country, Country] | null>(null);
   const [attempts, setAttempts] = useState<any[]>([]);
   const [gameOver, setGameOver] = useState(false);
+
+  // Load GeoJSON on mount
+  React.useEffect(() => {
+    fetch(process.env.PUBLIC_URL + '/data/world-countries.geojson')
+      .then(res => res.json())
+      .then(data => setGeojson(data));
+  }, []);
 
   // Progress indicator and round number are based on attempts
   const round = attempts.length + 1;
@@ -68,11 +83,15 @@ const Game: React.FC = () => {
   };
 
   const handleStartGame = () => {
-    if (difficulty) {
-      setCountryPair(getRandomCountryPair(difficulty));
+    if (difficulty && geojson) {
+      setCountryPair(getRandomCountryPair(difficulty, geojson));
       setDifficultyLocked(true);
     }
   };
+
+  if (!geojson) {
+    return <div>Loading map data...</div>;
+  }
 
   if (!difficultyLocked) {
     return (

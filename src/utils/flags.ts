@@ -47,6 +47,7 @@ const countryToISO: { [key: string]: string } = {
   "South Korea": "KR",
   "North Korea": "KP",
   "Vatican City": "VA",
+  "San Marino": "SM",
   "Democratic Republic of the Congo": "CD", // Congo DRC
   "Congo DRC": "CD",
   "Republic of the Congo": "CG"
