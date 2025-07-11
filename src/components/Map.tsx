@@ -92,7 +92,34 @@ const Map: React.FC<MapProps> = ({ country1, country2, answer, guesses }) => {
 
   return (
     <div style={{ marginTop: 20, textAlign: 'center' }}>
-      <h4>Map View</h4>
+      <div style={{ marginBottom: 18, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 32 }}>
+        <div style={{ border: '1px solid #ccc', borderRadius: 12, padding: '12px 20px', minWidth: 120, textAlign: 'center', background: '#fff', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+          <div style={{ fontSize: 28 }}>{getCountryFlag(country1.name)}</div>
+          <div style={{ fontWeight: 'bold', fontSize: 16, marginTop: 6 }}>{country1.name}</div>
+        </div>
+        <div style={{ border: '2px solid #51cf66', borderRadius: 12, padding: '12px 20px', minWidth: 120, textAlign: 'center', background: '#f6fff8', boxShadow: '0 2px 8px rgba(81,207,102,0.08)' }}>
+          <div style={{ fontSize: 28 }}>{getCountryFlag(answer.name)}</div>
+          <div style={{ fontWeight: 'bold', fontSize: 16, marginTop: 6 }}>{answer.name} <span style={{ color: '#51cf66', fontWeight: 500 }}>(Middle)</span></div>
+        </div>
+        <div style={{ border: '1px solid #ccc', borderRadius: 12, padding: '12px 20px', minWidth: 120, textAlign: 'center', background: '#fff', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+          <div style={{ fontSize: 28 }}>{getCountryFlag(country2.name)}</div>
+          <div style={{ fontWeight: 'bold', fontSize: 16, marginTop: 6 }}>{country2.name}</div>
+        </div>
+      </div>
+      {guesses.length > 0 && (
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 16, marginBottom: 18 }}>
+          {guesses.map((g: any, i: number) => (
+            <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', background: '#f8f9fa', borderRadius: 12, padding: '14px 24px', fontSize: 18, border: '1.5px solid #e0e0e0', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', minWidth: 160, fontWeight: 600 }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 16 }}>
+                <span style={{ fontWeight: 700, fontSize: 24 }}>{i + 1}.</span>
+                <span style={{ fontSize: 22 }}>{getCountryFlag(g.name)}</span>
+                <span>{g.name}</span>
+              </span>
+              <span style={{ marginTop: 6, fontWeight: 400, fontSize: 15, color: '#444' }}>{!isNaN(g.distance) ? `${g.distance} km` : ''}</span>
+            </div>
+          ))}
+        </div>
+      )}
       <div style={{ width: '100%', maxWidth: MAP_WIDTH, margin: '0 auto' }}>
         <svg width="100%" height="auto" viewBox={viewBox} style={{ border: '1px solid #ccc', background: '#f0f8ff', display: 'block', width: '100%', height: 'auto' }}>
           {/* Render the world map from GeoJSON */}
@@ -186,23 +213,6 @@ const Map: React.FC<MapProps> = ({ country1, country2, answer, guesses }) => {
             return null;
           })}
         </svg>
-      </div>
-      
-      <div style={{ marginTop: 10, fontSize: 12, color: '#666', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <div>
-          {getCountryFlag(country1.name)} {country1.name} |
-          {getCountryFlag(answer.name)} {answer.name} (Middle) |
-          {getCountryFlag(country2.name)} {country2.name}
-        </div>
-        {guesses.length > 0 && (
-          <div style={{ marginTop: 4 }}>
-            Guesses: {guesses.map((g: any, i: number) => (
-              <span key={i} style={{ marginRight: 8 }}>
-                <b>{i + 1}.</b> {getCountryFlag(g.name)} {g.name}
-              </span>
-            ))}
-          </div>
-        )}
       </div>
     </div>
   );
